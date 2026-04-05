@@ -1,0 +1,73 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Titan+One&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-logo: "Titan One", cursive;
+}
+
+@layer base {
+  body {
+    @apply font-sans antialiased;
+  }
+}
+
+@media print {
+  @page {
+    size: landscape;
+    margin: 5mm;
+  }
+  
+  /* Hide everything by default */
+  body * {
+    visibility: hidden !important;
+  }
+
+  /* Show only the print container and its children */
+  .print-only, .print-only * {
+    visibility: visible !important;
+  }
+
+  .print-only {
+    display: block !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: white !important;
+    visibility: visible !important;
+  }
+
+  /* Hide elements with .no-print explicitly */
+  .no-print, .no-print * {
+    display: none !important;
+    visibility: hidden !important;
+  }
+
+  /* Table scaling to fit 14 columns */
+  table {
+    width: 100% !important;
+    table-layout: fixed !important;
+    border-collapse: collapse !important;
+    border-spacing: 0 !important;
+  }
+
+  th, td {
+    font-size: 6pt !important;
+    padding: 1px 2px !important;
+    border: 0.5pt solid #000000 !important;
+    word-wrap: break-word !important;
+    overflow: hidden !important;
+    white-space: normal !important;
+    line-height: 1.1 !important;
+  }
+
+  /* Force background colors in print */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+}

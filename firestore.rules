@@ -1,0 +1,106 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: vehicles
+    // Document ID: fleetCode (string)
+    // Fields:
+    //   - srNo: number (optional)
+    //   - fleetCode: string (required)
+    //   - makeModel: string (optional)
+    //   - repairType: string (optional)
+    //   - repairDescription: string (optional)
+    //   - dateBD: string (optional)
+    //   - dateIn: string (optional)
+    //   - repairLocation: string (optional)
+    //   - branchPlant: string (optional)
+    //   - status: string (required)
+    //   - remarks: string (optional)
+    //   - normalBDDays: number (optional)
+    //   - specialBDDays: number (optional)
+    //   - totalBDDays: number (required)
+    //   - activeDays: list (optional)
+    //   - updatedAt: string (optional)
+    //   - updatedBy: string (optional)
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function hasRequiredFields(fields) {
+      return request.resource.data.keys().hasAll(fields);
+    }
+
+    function hasOnlyAllowedFields(fields) {
+      return request.resource.data.keys().hasOnly(fields);
+    }
+
+    function isValidString(field, maxLen) {
+      return request.resource.data[field] is string && request.resource.data[field].size() <= maxLen;
+    }
+
+    function isValidNumber(field) {
+      return request.resource.data[field] is number;
+    }
+
+    // Domain Validator for Vehicle
+    function isValidVehicle(data) {
+      return hasRequiredFields(['fleetCode', 'status', 'totalBDDays']) &&
+             hasOnlyAllowedFields([
+               'srNo', 'fleetCode', 'makeModel', 'repairType', 'repairDescription', 
+               'dateBD', 'dateIn', 'repairLocation', 'branchPlant', 'status', 
+               'remarks', 'normalBDDays', 'specialBDDays', 'totalBDDays', 
+               'activeDays', 'updatedAt', 'updatedBy'
+             ]) &&
+             data.fleetCode is string && data.fleetCode.size() > 0 && data.fleetCode.size() < 50 &&
+             data.status is string && data.status.size() > 0 && data.status.size() < 10 &&
+             data.totalBDDays is number &&
+             (!('srNo' in data) || data.srNo is number) &&
+             (!('makeModel' in data) || (data.makeModel is string && data.makeModel.size() < 100)) &&
+             (!('repairType' in data) || (data.repairType is string && data.repairType.size() < 50)) &&
+             (!('repairDescription' in data) || (data.repairDescription is string && data.repairDescription.size() < 500)) &&
+             (!('dateBD' in data) || (data.dateBD is string && data.dateBD.size() < 50)) &&
+             (!('dateIn' in data) || (data.dateIn is string && data.dateIn.size() < 50)) &&
+             (!('repairLocation' in data) || (data.repairLocation is string && data.repairLocation.size() < 100)) &&
+             (!('branchPlant' in data) || (data.branchPlant is string && data.branchPlant.size() < 100)) &&
+             (!('remarks' in data) || (data.remarks is string && data.remarks.size() < 1000)) &&
+             (!('normalBDDays' in data) || data.normalBDDays is number) &&
+             (!('specialBDDays' in data) || data.specialBDDays is number) &&
+             (!('activeDays' in data) || data.activeDays is list) &&
+             (!('updatedAt' in data) || (data.updatedAt is string && data.updatedAt.size() < 50)) &&
+             (!('updatedBy' in data) || (data.updatedBy is string && data.updatedBy.size() < 100));
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /vehicles/{fleetCode} {
+      // Allow read access to authenticated users
+      allow read: if isAuthenticated();
+      
+      // Allow create/update/delete to authenticated users
+      allow create: if isAuthenticated() && isValidVehicle(request.resource.data);
+      allow update: if isAuthenticated() && isValidVehicle(request.resource.data);
+      allow delete: if isAuthenticated();
+    }
+
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

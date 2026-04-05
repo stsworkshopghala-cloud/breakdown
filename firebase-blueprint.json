@@ -1,0 +1,35 @@
+{
+  "entities": {
+    "Vehicle": {
+      "title": "Vehicle",
+      "description": "A vehicle breakdown record",
+      "type": "object",
+      "properties": {
+        "srNo": { "type": "number" },
+        "fleetCode": { "type": "string" },
+        "makeModel": { "type": "string" },
+        "repairType": { "type": "string" },
+        "repairDescription": { "type": "string" },
+        "dateBD": { "type": "string" },
+        "dateIn": { "type": "string" },
+        "repairLocation": { "type": "string" },
+        "branchPlant": { "type": "string" },
+        "status": { "type": "string" },
+        "remarks": { "type": "string" },
+        "normalBDDays": { "type": "number" },
+        "specialBDDays": { "type": "number" },
+        "totalBDDays": { "type": "number" },
+        "activeDays": { "type": "array", "items": { "type": "number" } },
+        "updatedAt": { "type": "string", "format": "date-time" },
+        "updatedBy": { "type": "string" }
+      },
+      "required": ["fleetCode", "status", "totalBDDays"]
+    }
+  },
+  "firestore": {
+    "/vehicles/{fleetCode}": {
+      "schema": "Vehicle",
+      "description": "Collection of vehicle breakdown records"
+    }
+  }
+}

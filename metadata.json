@@ -1,0 +1,5 @@
+{
+  "name": "P&E Breakdown Summary Dashboard",
+  "description": "A comprehensive dashboard for tracking and analyzing plant and equipment breakdowns, featuring KPI metrics, vehicle-specific details, and interactive charts.",
+  "requestFramePermissions": []
+}
